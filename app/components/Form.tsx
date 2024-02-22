@@ -1,10 +1,12 @@
 'use client'
 import { zodResolver } from '@hookform/resolvers/zod'
+import axios from 'axios'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import {signIn} from 'next-auth/react'
 
 const Form = ({type} : {type : string}) => {
     const navigate = useRouter()
@@ -41,12 +43,70 @@ const Form = ({type} : {type : string}) => {
     resolver : zodResolver(type == "SignUp" ? SignUpSchema : SignInSchema),
   })
 
-  const CreateUser = (data) => {
-    console.log(data)
-  }
+  const CreateUser = async (data: any) => {
+    try {
+      const exists = await fetch('/api/alreadyExist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: data.email,
+        })
+      })
 
-  const LogIn = (data) => {
-    console.log(data)
+      const user = await exists.json()
+      console.log(user)
+      if (user) {
+        setError('email', {
+          type: "manual",
+          message: "User with this email already exists"
+        })
+        return
+      }
+
+        const response = await fetch('/api/registration', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: data.NickName,
+                email: data.email,
+                password: data.password
+            })
+        });
+
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+  const LogIn = async (data : any) => {
+    try {
+      const res = await signIn('credentials', {
+          email: data.email,
+          password: data.password,
+          redirect: false
+      });
+      if (res?.ok) {
+        navigate.replace('dashboard');
+      }
+      
+      else {
+        if(res?.error === "wrong password"){
+          res?.error == 'wrong password' ? setError('Lpassword', {type : "manual", message : "wrong password"}) : ""}
+          else{
+            setError('Lemail' && 'password', {
+              type: "manual",
+              message: "this account does not exist"
+            });
+          }
+      
+      }
+  } catch (error) {
+      console.log('bugged');
+  }
   }
   return (
     <div className='w-5/6 h-4/6 bg-black lg:w-1/3 rounded-lg bg-opacity-50 xl:w-3/7'>
