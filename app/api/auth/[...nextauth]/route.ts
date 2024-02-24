@@ -5,13 +5,13 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider  from "next-auth/providers/credentials";
 
 
-export default NextAuth({
+const handler =  NextAuth({
     adapter : PrismaAdapter(prisma),
     providers: [
-        // GoogleProvider({
-        //     clientId: process.env.GOOGLE_CLIENT_ID as string,
-        //     clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
-        // }),
+        GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
+        }),
         CredentialsProvider({
             name : 'credentials',
             credentials: {
@@ -42,17 +42,18 @@ export default NextAuth({
                 const isCorrectPassword = user.hashedPassword == credentials.password ? true : false
 
                 if(!isCorrectPassword) throw new Error('Invalid password')
-
                 return user
             }
         })
-  ],
-  pages : {
-    signIn : 'SignIn'
-  },
-  debug : process.env.NODE_ENV === 'development',
-  session : {
-    strategy : "jwt"
-  },
-  secret : process.env.NEXTAUTH_SECRET
+    ],
+        pages : {
+            signIn : 'login'
+        },
+        debug : process.env.NODE_ENV === 'development',
+        session : {
+            strategy : "jwt"
+        },
+        secret : process.env.NEXTAUTH_SECRET
 })
+
+export { handler as GET, handler as POST }

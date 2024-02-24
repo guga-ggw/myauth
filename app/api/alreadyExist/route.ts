@@ -16,8 +16,6 @@ export async function POST(req: any) {
                 }
             });
 
-            console.log("user is" + user?.email)
-
             return NextResponse.json(user);
         } catch (error) {
             return NextResponse.json({ message: "Failed to find user" });

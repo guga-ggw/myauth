@@ -77,16 +77,33 @@ const Form = ({type} : {type : string}) => {
             })
         });
 
+        if(response.ok === true) {
+          // navigate.push('/dashboard')
+         const res = await signIn('credentials', {
+            email : data.email,
+            password : data.password,
+            redirect : false
+          })
+          
+          if(res?.ok){
+              navigate.push('dashboard')
+            }
+            if (res?.error) {
+              console.error('Error occurred:', res.error);
+          }
+
+        }
+
     } catch (err) {
-        console.log(err);
+        console.error(err);
     }
-}
+  }
 
   const LogIn = async (data : any) => {
     try {
       const res = await signIn('credentials', {
-          email: data.email,
-          password: data.password,
+          email: data.Lemail,
+          password: data.Lpassword,
           redirect: false
       });
       if (res?.ok) {
@@ -94,10 +111,12 @@ const Form = ({type} : {type : string}) => {
       }
       
       else {
-        if(res?.error === "wrong password"){
-          res?.error == 'wrong password' ? setError('Lpassword', {type : "manual", message : "wrong password"}) : ""}
+        console.log(res?.error)
+        if(res?.error === "Invalid password"){
+          res?.error == 'Invalid password' ? setError('Lpassword', {type : "manual", message : "wrong password"}) : ""
+        }
           else{
-            setError('Lemail' && 'password', {
+            setError('Lemail' && 'Lpassword', {
               type: "manual",
               message: "this account does not exist"
             });
