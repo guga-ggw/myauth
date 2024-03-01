@@ -7,10 +7,12 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import {signIn} from 'next-auth/react'
+import { useAppDispatch } from '@/lib/hooks'
+import { setLoggedIn } from '@/lib/features/usersSlice'
 
 const Form = ({type} : {type : string}) => {
     const navigate = useRouter()
-
+    const dispatch = useAppDispatch()
 
 
   
@@ -78,7 +80,6 @@ const Form = ({type} : {type : string}) => {
         });
 
         if(response.ok === true) {
-          // navigate.push('/dashboard')
          const res = await signIn('credentials', {
             email : data.email,
             password : data.password,
@@ -86,7 +87,11 @@ const Form = ({type} : {type : string}) => {
           })
           
           if(res?.ok){
-              navigate.push('dashboard')
+            localStorage.setItem('isLoggedIn', 'true')
+              dispatch(setLoggedIn())
+              setTimeout(() => {
+                navigate.push('dashboard')
+              }, 3000);
             }
             if (res?.error) {
               console.error('Error occurred:', res.error);
@@ -107,7 +112,11 @@ const Form = ({type} : {type : string}) => {
           redirect: false
       });
       if (res?.ok) {
-        navigate.replace('dashboard');
+        localStorage.setItem('isLoggedIn', 'true')
+         dispatch(setLoggedIn())
+         setTimeout(() => {
+          navigate.push('dashboard')
+        }, 3000);
       }
       
       else {

@@ -39,6 +39,16 @@ model User {
 
   role role @default(USER)
 
+  blog Blogs[]
+}
+
+model Blogs {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  body      String
+  createAt  DateTime  @default(now())
+  userId    String    @db.ObjectId
+
+  user User @relation( fields : [userId], references: [id], onDelete : Cascade)
 }
 
 enum role{
